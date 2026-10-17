@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muranga Citizen Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Muranga County - Citizen Service Requests</h1>
+    <a href="admin.html">Admin Dashboard</a>
+  </header>
+
+  <main class="container">
+    <section id="auth">
+      <h2>Citizen Login / Register</h2>
+      <input id="citizenName" placeholder="Full Name">
+      <input id="citizenEmail" placeholder="Email / Phone">
+      <button onclick="login()">Enter Portal</button>
+    </section>
+
+    <section id="app" class="hidden">
+      <h2>Welcome <span id="userDisplay"></span> - <button onclick="logout()">Logout</button></h2>
+      
+      <div class="card">
+        <h3>Submit New Request</h3>
+        <select id="category">
+          <option value="">Select Category</option>
+          <option>Broken Streetlight</option>
+          <option>Water Issue</option>
+          <option>Garbage Collection</option>
+          <option>Road Pothole</option>
+          <option>Other</option>
+        </select>
+        <input id="location" placeholder="Location e.g. Kangema Ward">
+        <textarea id="description" placeholder="Describe issue..."></textarea>
+        <input type="file" id="imageInput" accept="image/*">
+        <button onclick="submitRequest()">Submit Request</button>
+      </div>
+
+      <div class="card">
+        <h3>My Requests</h3>
+        <div id="myRequests"></div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
