@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard - Muranga County</h1>
+    <a href="index.html">Citizen View</a>
+  </header>
+  <main class="container">
+    <div class="analytics">
+      <div class="stat"><h3 id="totalAll">0</h3><p>Total Requests</p></div>
+      <div class="stat"><h3 id="totalOpen">0</h3><p>Pending</p></div>
+      <div class="stat"><h3 id="totalProgress">0</h3><p>In Progress</p></div>
+      <div class="stat"><h3 id="totalResolved">0</h3><p>Resolved</p></div>
+    </div>
+    <div class="card">
+      <h3>All Citizen Requests</h3>
+      <select id="filterStatus" onchange="renderAdmin()">
+        <option>All</option>
+        <option>Pending</option>
+        <option>In Progress</option>
+        <option>Resolved</option>
+      </select>
+      <div id="adminList"></div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
