@@ -1,58 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Murang'a Citizen Portal</title>
 <link rel="stylesheet" href="style.css">
-<script>
-// Protect - must login first
-const currentCitizen = JSON.parse(localStorage.getItem('currentCitizen') || "null");
-if(!currentCitizen){ window.location.href="login.html"; }
-</script>
+<style>
+body{background:#f5f5f5; margin:0; font-family:Arial;}
+.top-bar{background:#e8f5e9; padding:10px 15px; display:flex; justify-content:space-between; align-items:center;}
+.card{background:white; border-radius:12px; padding:15px; margin:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px;}
+.stat-card{background:white; border-radius:10px; padding:15px; text-align:center; border-top:4px solid #1b5e20;}
+.badge{padding:3px 8px; border-radius:10px; font-size:12px; color:white;}
+.Pending{background:#f57c00;} .InProgress{background:#1976d2;} .Resolved{background:#388e3c;}
+input, select, textarea{width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; margin-top:5px; margin-bottom:10px;}
+button.submit{background:#1b5e20; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold;}
+</style>
 </head>
 <body>
-<header>
-<h1>🌍 Murang'a Citizen Portal</h1>
-<p>Report Issues - Water, Roads, Garbage, Electricity</p>
-<a href="admin.html" style="background:white; color:#2e7d32; padding:6px 12px; border-radius:5px; text-decoration:none;">Admin</a>
-</header>
 
-<div style="background:#e8f5e9; padding:10px 20px; display:flex; justify-content:space-between; align-items:center;">
-  <span id="welcomeMsg" style="font-weight:bold; color:#2e7d32;"></span>
-  <button onclick="logout()" style="background:#c62828; width:auto; padding:6px 14px; font-size:14px; color:white; border:none; border-radius:5px;">Logout</button>
+<div class="top-bar">
+  <span style="color:#1b5e20; font-weight:bold;">Welcome, <span id="userDisplay">Regina</span></span>
+  <button onclick="logout()" style="background:#c62828; color:white; border:none; padding:8px 15px; border-radius:6px;">Logout</button>
 </div>
 
-<main class="container">
-  <div class="stats">
-    <div class="stat-card"><h3 id="total">0</h3><p>Total</p></div>
-    <div class="stat-card"><h3 id="pending">0</h3><p>Pending</p></div>
-    <div class="stat-card"><h3 id="inprogress">0</h3><p>In Progress</p></div>
-    <div class="stat-card"><h3 id="resolved">0</h3><p>Resolved</p></div>
-  </div>
+<div class="stat-grid">
+  <div class="stat-card"><h2 id="totalReq">0</h2><div>Total</div></div>
+  <div class="stat-card"><h2 id="pendingReq">0</h2><div>Pending</div></div>
+  <div class="stat-card"><h2 id="progressReq">0</h2><div>In Progress</div></div>
+  <div class="stat-card"><h2 id="resolvedReq">0</h2><div>Resolved</div></div>
+</div>
 
-  <div class="card">
-    <h2>Submit New Request</h2>
+<div class="card">
+  <h2>Submit New Request</h2>
+  <form id="requestForm">
     <label>Category *</label>
-    <select id="category"><option value="">Select Category</option><option>Water</option><option>Roads</option><option>Garbage</option><option>Electricity</option></select>
+    <select id="category" required>
+      <option value="">Select Category</option>
+      <option>Water</option><option>Roads</option><option>Garbage</option><option>Health</option><option>Electricity</option><option>Other</option>
+    </select>
     <label>Location *</label>
-    <input type="text" id="location" placeholder="Ward/Village">
+    <input id="location" placeholder="Ward/Village" required>
     <label>Description *</label>
-    <textarea id="description" placeholder="Describe issue..."></textarea>
-    <button onclick="submitRequest()">Submit Request</button>
-  </div>
+    <textarea id="description" placeholder="Describe issue..." required></textarea>
+    
+    <!-- HATUNA IMAGE FIX - HAPA NDIPO -->
+    <label>Attach Image (Optional) 📷</label>
+    <input type="file" id="requestImage" accept="image/*" onchange="previewImage(event)">
+    <div id="imagePreview"></div>
 
-  <div class="card">
-    <h2>My Requests</h2>
-    <div id="requestsList"></div>
-  </div>
-</main>
+    <button type="submit" class="submit">Submit Request</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>My Requests</h2>
+  <div id="myRequests"></div>
+</div>
 
 <script>
-  const c = JSON.parse(localStorage.getItem('currentCitizen') || "null");
-  if(c) document.getElementById('welcomeMsg').innerText = "Welcome, " + c.name;
-  function logout(){ localStorage.removeItem('currentCitizen'); window.location.href="login.html"; }
+const STORAGE_KEY = 'muranga_requests';
+function getRequests(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
+function saveRequests(d){localStorage.setItem(STORAGE_KEY, JSON.stringify(d));}
+
+function logout(){localStorage.removeItem('citizenLogged'); window.location.href='login.html';}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  // check login
+  if(!localStorage.getItem('citizenLogged')){ window.location.href='login.html'; return;}
+  const name = localStorage.getItem('citizenName') || 'Regina';
+  document.getElementById('userDisplay').textContent = name;
+  renderCitizen();
+
+  document.getElementById('requestForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const category=document.getElementById('category').value;
+    const location=document.getElementById('location').value.trim();
+    const description=document.getElementById('description').value.trim();
+    const imageInput=document.getElementById('requestImage');
+    
+    if(!category || !location || !description){alert('Fill all required fields'); return;}
+
+    if(imageInput && imageInput.files[0]){
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        createRequest(category, location, description, ev.target.result);
+      };
+      reader.readAsDataURL(imageInput.files[0]);
+    }else{
+      createRequest(category, location, description, '');
+    }
+  });
+});
+
+function createRequest(category, location, description, image){
+  const requests=getRequests();
+  const newReq={id:'REQ-'+Date.now(), category, location, description, image, status:'Pending', date:new Date().toLocaleDateString()};
+  requests.unshift(newReq);
+  saveRequests(requests);
+  alert('Request Submitted: '+newReq.id);
+  document.getElementById('requestForm').reset();
+  document.getElementById('imagePreview').innerHTML='';
+  renderCitizen();
+}
+
+function renderCitizen(){
+  const container=document.getElementById('myRequests');
+  const requests=getRequests();
+  if(requests.length===0){container.innerHTML='<p>No requests yet</p>'; updateStats(); return;}
+  container.innerHTML=requests.map(r=>`
+    <div style="border:1px solid #eee; padding:10px; border-radius:8px; margin-bottom:10px;">
+      <span class="badge ${r.status.replace(' ','')}">${r.status}</span>
+      <h4>${r.category} - ${r.location}</h4>
+      <p>${r.description}</p>
+      <small>${r.id} | ${r.date}</small>
+      ${r.image ? `<br><img src="${r.image}" style="width:100%; max-height:200px; object-fit:cover; margin-top:8px; border-radius:8px;">` : ''}
+    </div>
+  `).join('');
+  updateStats();
+}
+
+function updateStats(){
+  const req=getRequests();
+  document.getElementById('totalReq').textContent=req.length;
+  document.getElementById('pendingReq').textContent=req.filter(r=>r.status==='Pending').length;
+  document.getElementById('progressReq').textContent=req.filter(r=>r.status==='In Progress').length;
+  document.getElementById('resolvedReq').textContent=req.filter(r=>r.status==='Resolved').length;
+}
+
+function previewImage(event){
+  const file=event.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('imagePreview').innerHTML=`<img src="${e.target.result}" style="width:100%; max-height:150px; object-fit:cover; border-radius:8px; margin-top:8px;">`;
+  };
+  reader.readAsDataURL(file);
+}
 </script>
-<script src="app.js"></script>
 </body>
 </html>
