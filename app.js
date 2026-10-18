@@ -58,3 +58,57 @@ function renderCitizen(){
       <p>${r.description}</p>
       <small>${r.id} | ${r.date}</small>
       ${r.image ? `<br><img src="${r.image}" style
+// === CITIZEN AUTH SYSTEM ===
+function showRegister(){
+  document.getElementById('loginCard').classList.add('hidden');
+  document.getElementById('registerCard').classList.remove('hidden');
+}
+function showLogin(){
+  document.getElementById('registerCard').classList.add('hidden');
+  document.getElementById('loginCard').classList.remove('hidden');
+}
+
+function registerCitizen(){
+  const name = document.getElementById('regName').value;
+  const id = document.getElementById('regId').value;
+  const phone = document.getElementById('regPhone').value;
+  const pass = document.getElementById('regPass').value;
+  if(!name || !id || !pass){ alert("Fill all required fields"); return; }
+  let citizens = JSON.parse(localStorage.getItem('citizens') || "[]");
+  if(citizens.find(c=>c.id===id)){ alert("ID already registered"); return; }
+  citizens.push({name,id,phone,pass});
+  localStorage.setItem('citizens', JSON.stringify(citizens));
+  alert("Registration successful! Now login.");
+  showLogin();
+}
+
+function loginCitizen(){
+  const id = document.getElementById('citizenId').value;
+  const pass = document.getElementById('citizenPass').value;
+  let citizens = JSON.parse(localStorage.getItem('citizens') || "[]");
+  const user = citizens.find(c=>c.id===id && c.pass===pass);
+  if(!user){ alert("Invalid ID or Password"); return; }
+  localStorage.setItem('currentCitizen', JSON.stringify(user));
+  checkLogin();
+}
+
+function logoutCitizen(){
+  localStorage.removeItem('currentCitizen');
+  location.reload();
+}
+
+function checkLogin(){
+  const current = JSON.parse(localStorage.getItem('currentCitizen') || "null");
+  if(current){
+    document.getElementById('loginCard').classList.add('hidden');
+    document.getElementById('registerCard').classList.add('hidden');
+    document.getElementById('welcomeCard').classList.remove('hidden');
+    document.getElementById('welcomeMsg').innerText = "Welcome, " + current.name + " (" + current.id + ")";
+  }
+}
+// auto check on load
+checkLogin();
+
+// Remove hint from admin
+// Replace any prompt with Hint - secure version
+const originalPrompt = window.prompt;
