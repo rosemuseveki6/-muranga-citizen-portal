@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Murang'a Citizen Portal - Login</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body{display:flex; justify-content:center; align-items:center; min-height:100vh; background:#f5f7f5;}
+    .auth-box{max-width:400px; width:90%;}
+  </style>
+</head>
+<body>
+  <div class="auth-box">
+    <header style="border-radius:10px 10px 0 0;">
+      <h2>Murang'a Citizen Portal</h2>
+      <p>Citizen Access</p>
+    </header>
+    <div class="card" id="loginCard">
+      <h2>Citizen Login</h2>
+      <label>ID Number *</label>
+      <input type="text" id="citizenId" placeholder="Enter ID">
+      <label>Password *</label>
+      <input type="password" id="citizenPass" placeholder="Enter password">
+      <button onclick="loginCitizen()">Login</button>
+      <p style="margin-top:10px; text-align:center;">No account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+    <div class="card hidden" id="registerCard">
+      <h2>Citizen Registration</h2>
+      <label>Full Name *</label>
+      <input type="text" id="regName">
+      <label>ID Number *</label>
+      <input type="text" id="regId">
+      <label>Phone *</label>
+      <input type="text" id="regPhone">
+      <label>Password *</label>
+      <input type="password" id="regPass">
+      <button onclick="registerCitizen()">Register</button>
+      <p style="margin-top:10px; text-align:center;">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+  </div>
+<script>
+function showRegister(){ document.getElementById('loginCard').classList.add('hidden'); document.getElementById('registerCard').classList.remove('hidden'); }
+function showLogin(){ document.getElementById('registerCard').classList.add('hidden'); document.getElementById('loginCard').classList.remove('hidden'); }
+function registerCitizen(){
+  const name=document.getElementById('regName').value, id=document.getElementById('regId').value, phone=document.getElementById('regPhone').value, pass=document.getElementById('regPass').value;
+  if(!name||!id||!pass){alert("Fill all fields");return;}
+  let citizens=JSON.parse(localStorage.getItem('citizens')||"[]");
+  if(citizens.find(c=>c.id===id)){alert("ID already registered");return;}
+  citizens.push({name,id,phone,pass}); localStorage.setItem('citizens',JSON.stringify(citizens));
+  alert("Registration successful! Login now."); showLogin();
+}
+function loginCitizen(){
+  const id=document.getElementById('citizenId').value, pass=document.getElementById('citizenPass').value;
+  let citizens=JSON.parse(localStorage.getItem('citizens')||"[]");
+  const user=citizens.find(c=>c.id===id&&c.pass===pass);
+  if(!user){alert("Invalid ID or Password");return;}
+  localStorage.setItem('currentCitizen',JSON.stringify(user));
+  window.location.href="index.html";
+}
+</script>
+</body>
+</html>
