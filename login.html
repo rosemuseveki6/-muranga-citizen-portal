@@ -38,11 +38,11 @@
       <button onclick="registerCitizen()">Register</button>
       <p style="margin-top:10px; text-align:center;">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
     </div>
+    <div style="text-align:center; margin-top:20px; border-top:1px solid #ddd; padding-top:15px;">
+<p>Are you an Admin?</p>
+<a href="admin.html" style="color:#c62828; font-weight:bold; background:#ffebee; padding:6px 12px; border-radius:5px; text-decoration:none;">Go to Admin Login →</a>
+    </div>
   </div>
-  <div style="text-align:center; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
-  <p>Are you an Admin?</p>
-  <a href="admin.html" style="color:#c62828; font-weight:bold; text-decoration:none;">Go to Admin Login →</a>
-</div>
 <script>
 function showRegister(){ document.getElementById('loginCard').classList.add('hidden'); document.getElementById('registerCard').classList.remove('hidden'); }
 function showLogin(){ document.getElementById('registerCard').classList.add('hidden'); document.getElementById('loginCard').classList.remove('hidden'); }
