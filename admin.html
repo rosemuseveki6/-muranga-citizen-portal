@@ -18,7 +18,13 @@ button.green{background:#1b5e20; color:white; border:none; padding:12px; border-
 </style>
 </head>
 <body>
-
+<script>
+let pass = prompt("Enter Admin Password:");
+if(pass !== "admin123"){
+ alert("Wrong password! Access denied.");
+ window.location.href="login.html";
+}
+</script>
 <div class="admin-header">
   <h1>Admin Dashboard - Muranga County</h1>
   <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
