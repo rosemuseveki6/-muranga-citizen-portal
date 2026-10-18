@@ -1,47 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Muranga County</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Muranga</title>
 <link rel="stylesheet" href="style.css">
-<script>
-const ADMIN_PASSWORD = "admin123";
-if(sessionStorage.getItem('isAdmin') !== 'true'){
-let pass = prompt("Admin Password Required");
-if(pass !== ADMIN_PASSWORD){
-alert("Wrong password!");
-window.location.href = "index.html";
-}else{
-sessionStorage.setItem('isAdmin','true');
-}
-}
-</script>
+<style>
+body{background:#f5f5f5; margin:0; font-family:Arial;}
+.admin-header{background:#1b5e20; color:white; padding:20px; text-align:center;}
+.admin-header h1{margin:0 0 10px 0;}
+.card{background:white; border-radius:12px; padding:15px; margin:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px;}
+.stat-card{background:white; border-radius:10px; padding:15px; text-align:center; border-top:4px solid #1b5e20;}
+.badge{padding:4px 10px; border-radius:10px; font-size:12px; color:white;}
+.Pending{background:#f57c00;} .InProgress{background:#1976d2;} .Resolved{background:#388e3c;}
+select, input{width:100%; padding:12px; border:1px solid #ccc; border-radius:8px; margin-bottom:10px; box-sizing:border-box;}
+button.green{background:#1b5e20; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold;}
+</style>
 </head>
 <body>
-<header style="background:#1a5d1a;">
-<h1>Admin Dashboard - Muranga County</h1>
-<div style="display:flex; gap:10px; flex-wrap:wrap;">
-<a href="index.html" style="background:white; color:#1a5d1a; padding:6px 12px; border-radius:5px; text-decoration:none;">View as Citizen</a>
-<a href="login.html" style="background:#ffebee; color:#c62828; padding:6px 12px; border-radius:5px; text-decoration:none;">← Citizen Login</a>
-<button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='login.html';" style="background:#c62828; width:auto; padding:6px 12px; font-size:14px; color:white; border:none; border-radius:5px;">Logout Admin</button>
+
+<div class="admin-header">
+  <h1>Admin Dashboard - Muranga County</h1>
+  <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+    <a href="index.html" style="background:white; color:#1b5e20; padding:8px 15px; border-radius:6px; text-decoration:none;">View as Citizen</a>
+    <a href="login.html" style="background:#ffebee; color:#c62828; padding:8px 15px; border-radius:6px; text-decoration:none;">← Citizen Login</a>
+  </div>
+  <br>
+  <button onclick="logoutAdmin()" style="background:#c62828; color:white; border:none; padding:8px 16px; border-radius:6px;">Logout Admin</button>
 </div>
-</header>
-<main class="container">
-<div class="stats">
-<div class="stat-card"><h2 id="totalReq">0</h2><p>Total</p></div>
-<div class="stat-card"><h2 id="pendingReq">0</h2><p>Pending</p></div>
-<div class="stat-card"><h2 id="progressReq">0</h2><p>In Progress</p></div>
-<div class="stat-card"><h2 id="resolvedReq">0</h2><p>Resolved</p></div>
+
+<div class="stat-grid">
+  <div class="stat-card"><h2 id="totalReq">0</h2><div>Total</div></div>
+  <div class="stat-card"><h2 id="pendingReq">0</h2><div>Pending</div></div>
+  <div class="stat-card"><h2 id="progressReq">0</h2><div>In Progress</div></div>
+  <div class="stat-card"><h2 id="resolvedReq">0</h2><div>Resolved</div></div>
 </div>
+
 <div class="card">
-<h3>All Citizen Requests</h3>
-<select id="filterStatus" onchange="renderAdmin()"><option value="All">All</option><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Resolved">Resolved</option></select>
-<input id="searchInput" placeholder="Search location..." onkeyup="renderAdmin()">
-<button onclick="exportCSV()">Export CSV</button>
-<div id="allRequests" style="margin-top:15px;"></div>
+  <h2>All Citizen Requests</h2>
+  <select id="filterStatus" onchange="renderAdmin()">
+    <option value="All">All</option><option>Pending</option><option>In Progress</option><option>Resolved</option>
+  </select>
+  <input id="searchInput" placeholder="Search location..." oninput="renderAdmin()">
+  <button class="green" onclick="exportCSV()">Export CSV</button>
+  <div id="allRequests" style="margin-top:15px;"></div>
 </div>
-</main>
-<script src="app.js"></script>
+
+<script>
+const STORAGE_KEY = 'muranga_requests'; // SAME KEY KAMA index.html - HII NDIO FIX!
+function getRequests(){return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
+function saveRequests(d){localStorage.setItem(STORAGE_KEY, JSON.stringify(d));}
+function logoutAdmin(){localStorage.removeItem('adminLogged'); window.location.href='login.html';}
+
+function renderAdmin(){
+  const container=document.getElementById('allRequests');
+  let requests=getRequests();
+  const filter=document.getElementById('filterStatus').value;
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  if(filter && filter!=='All'){requests=requests.filter(r=>r.status===filter);}
+  if(search){requests=requests.filter(r=>r.location.toLowerCase().includes(search) || r.category.toLowerCase().includes(search));}
+  if(requests.length===0){container.innerHTML='<p style="color:#888; text-align:center;">No requests found - bado citizen haja-submit, au uko different browser</p>'; updateStats(); return;}
+  container.innerHTML=requests.map(r=>`
+    <div style="border:1px solid #eee; padding:12px; border-radius:10px; margin-bottom:12px;">
+      <span class="badge ${r.status.replace(' ','')}">${r.status}</span>
+      <h4>${r.id} - ${r.category}</h4>
+      <p><b>Location:</b> ${r.location}</p>
+      <p>${r.description}</p>
+      ${r.image ? `<img src="${r.image}" style="width:100%; max-height:220px; object-fit:cover; border-radius:8px; margin-top:8px;">` : ''}
+      <p><small>${r.date}</small></p>
+      <select onchange="updateStatus('${r.id}', this.value)" style="margin-top:8px;">
+        <option ${r.status==='Pending'?'selected':''}>Pending</option>
+        <option ${r.status==='In Progress'?'selected':''}>In Progress</option>
+        <option ${r.status==='Resolved'?'selected':''}>Resolved</option>
+      </select>
+    </div>
+  `).join('');
+  updateStats();
+}
+
+function updateStatus(id, newStatus){
+  const requests=getRequests();
+  const idx=requests.findIndex(r=>r.id===id);
+  if(idx!==-1){requests[idx].status=newStatus; saveRequests(requests); renderAdmin();}
+}
+
+function updateStats(){
+  const req=getRequests();
+  document.getElementById('totalReq').textContent=req.length;
+  document.getElementById('pendingReq').textContent=req.filter(r=>r.status==='Pending').length;
+  document.getElementById('progressReq').textContent=req.filter(r=>r.status==='In Progress').length;
+  document.getElementById('resolvedReq').textContent=req.filter(r=>r.status==='Resolved').length;
+}
+
+function exportCSV(){
+  const requests=getRequests();
+  if(requests.length===0){alert('No data'); return;}
+  let csv='ID,Category,Location,Description,Status,Date\n';
+  requests.forEach(r=>{ csv+=`"${r.id}","${r.category}","${r.location}","${r.description.replace(/"/g,'""')}","${r.status}","${r.date}"\n`; });
+  const blob=new Blob([csv], {type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='muranga_requests.csv'; a.click();
+}
+
+document.addEventListener('DOMContentLoaded', renderAdmin);
+</script>
 </body>
 </html>
