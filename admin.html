@@ -8,7 +8,7 @@
 <script>
 const ADMIN_PASSWORD = "admin123";
 if(sessionStorage.getItem('isAdmin') !== 'true'){
-let pass = prompt("Admin Password Required - Hint: admin123");
+let pass = prompt("Admin Password Required");
 if(pass !== ADMIN_PASSWORD){
 alert("Wrong password!");
 window.location.href = "index.html";
