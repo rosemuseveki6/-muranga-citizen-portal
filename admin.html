@@ -1,34 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Muranga County</title>
+<link rel="stylesheet" href="style.css">
+<script>
+const ADMIN_PASSWORD = "admin123";
+if(sessionStorage.getItem('isAdmin') !== 'true'){
+let pass = prompt("Admin Password Required - Hint: admin123");
+if(pass !== ADMIN_PASSWORD){
+alert("Wrong password!");
+window.location.href = "index.html";
+}else{
+sessionStorage.setItem('isAdmin','true');
+}
+}
+</script>
 </head>
 <body>
-  <header>
-    <h1>Admin Dashboard - Muranga County</h1>
-    <a href="index.html">Citizen View</a>
-  </header>
-  <main class="container">
-    <div class="analytics">
-      <div class="stat"><h3 id="totalAll">0</h3><p>Total Requests</p></div>
-      <div class="stat"><h3 id="totalOpen">0</h3><p>Pending</p></div>
-      <div class="stat"><h3 id="totalProgress">0</h3><p>In Progress</p></div>
-      <div class="stat"><h3 id="totalResolved">0</h3><p>Resolved</p></div>
-    </div>
-    <div class="card">
-      <h3>All Citizen Requests</h3>
-      <select id="filterStatus" onchange="renderAdmin()">
-        <option>All</option>
-        <option>Pending</option>
-        <option>In Progress</option>
-        <option>Resolved</option>
-      </select>
-      <div id="adminList"></div>
-    </div>
-  </main>
-  <script src="app.js"></script>
+<header style="background:#1a5d1a;">
+<h1>Admin Dashboard - Muranga County</h1>
+<div>
+<a href="index.html" style="background:white;color:green;padding:8px;border-radius:5px;text-decoration:none;">Citizen View</a>
+<button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='index.html';">Logout</button>
+</div>
+</header>
+<main class="container">
+<div class="stats">
+<div class="stat-card"><h2 id="totalReq">0</h2><p>Total</p></div>
+<div class="stat-card"><h2 id="pendingReq">0</h2><p>Pending</p></div>
+<div class="stat-card"><h2 id="progressReq">0</h2><p>In Progress</p></div>
+<div class="stat-card"><h2 id="resolvedReq">0</h2><p>Resolved</p></div>
+</div>
+<div class="card">
+<h3>All Citizen Requests</h3>
+<select id="filterStatus" onchange="renderAdmin()"><option value="All">All</option><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Resolved">Resolved</option></select>
+<input id="searchInput" placeholder="Search location..." onkeyup="renderAdmin()">
+<button onclick="exportCSV()">Export CSV</button>
+<div id="allRequests" style="margin-top:15px;"></div>
+</div>
+</main>
+<script src="app.js"></script>
 </body>
 </html>
