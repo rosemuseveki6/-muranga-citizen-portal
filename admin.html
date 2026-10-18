@@ -21,9 +21,10 @@ sessionStorage.setItem('isAdmin','true');
 <body>
 <header style="background:#1a5d1a;">
 <h1>Admin Dashboard - Muranga County</h1>
-<div>
-<a href="index.html" style="background:white;color:green;padding:8px;border-radius:5px;text-decoration:none;">Citizen View</a>
-<button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='index.html';">Logout</button>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+<a href="index.html" style="background:white; color:#1a5d1a; padding:6px 12px; border-radius:5px; text-decoration:none;">View as Citizen</a>
+<a href="login.html" style="background:#ffebee; color:#c62828; padding:6px 12px; border-radius:5px; text-decoration:none;">← Citizen Login</a>
+<button onclick="sessionStorage.removeItem('isAdmin'); window.location.href='login.html';" style="background:#c62828; width:auto; padding:6px 12px; font-size:14px; color:white; border:none; border-radius:5px;">Logout Admin</button>
 </div>
 </header>
 <main class="container">
