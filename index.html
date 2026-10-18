@@ -10,40 +10,33 @@
 <header>
 <h1>🌍 Murang'a Citizen Portal</h1>
 <p>Report Issues - Water, Roads, Garbage, Electricity</p>
-<a href="admin.html" style="background:white;color:#1a5d1a;padding:8px 12px;border-radius:5px;text-decoration:none;font-weight:bold;">Admin Dashboard</a>
+<header>
+<h1>🌍 Murang'a Citizen Portal</h1>
+<p>Report Issues - Water, Roads, Garbage</p>
+<a href="admin.html" style="background:white; color:#2e7d32; padding:6px 12px; border-radius:5px; text-decoration:none;">Admin</a>
 </header>
-<!-- CITIZEN AUTH -->
-<div class="container" id="authSection">
-  <div class="card" id="loginCard">
-    <h2>Citizen Login</h2>
-    <label>ID Number *</label>
-    <input type="text" id="citizenId" placeholder="Enter ID">
-    <label>Password *</label>
-    <input type="password" id="citizenPass" placeholder="Enter password">
-    <button onclick="loginCitizen()">Login</button>
-    <p style="margin-top:10px; text-align:center;">No account? <a href="#" onclick="showRegister()">Register here</a></p>
-  </div>
 
-  <div class="card hidden" id="registerCard">
-    <h2>Citizen Registration</h2>
-    <label>Full Name *</label>
-    <input type="text" id="regName" placeholder="John Doe">
-    <label>ID Number *</label>
-    <input type="text" id="regId" placeholder="ID Number">
-    <label>Phone *</label>
-    <input type="text" id="regPhone" placeholder="07...">
-    <label>Password *</label>
-    <input type="password" id="regPass" placeholder="Create password">
-    <button onclick="registerCitizen()">Register</button>
-    <p style="margin-top:10px; text-align:center;">Have account? <a href="#" onclick="showLogin()">Login here</a></p>
-  </div>
+<script>
+// If not logged in, redirect to login.html
+const currentCitizen = JSON.parse(localStorage.getItem('currentCitizen') || "null");
+if(!currentCitizen){
+  window.location.href = "login.html";
+}
+</script>
 
-  <div class="card hidden" id="welcomeCard">
-    <h3 id="welcomeMsg"></h3>
-    <button onclick="logoutCitizen()" style="background:#c62828; width:auto; padding:8px 15px;">Logout</button>
-  </div>
+<div style="background:#e8f5e9; padding:10px 20px; display:flex; justify-content:space-between; align-items:center;">
+  <span id="welcomeMsg" style="font-weight:bold; color:#2e7d32;"></span>
+  <button onclick="logout()" style="background:#c62828; width:auto; padding:6px 14px; font-size:14px; color:white; border:none; border-radius:5px;">Logout</button>
 </div>
-<!-- END AUTH -->
+
+<script>
+  const c = JSON.parse(localStorage.getItem('currentCitizen') || "null");
+  if(c) document.getElementById('welcomeMsg').innerText = "Welcome, " + c.name;
+  function logout(){ localStorage.removeItem('currentCitizen'); window.location.href="login.html"; }
+</script>
+
+<main class="container">
+
 <main class="container">
 <div class="stats">
 <div class="stat-card"><h2 id="totalReq">0</h2><p>Total</p></div>
